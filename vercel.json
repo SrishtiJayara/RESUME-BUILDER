@@ -1,0 +1,12 @@
+{
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/build",
+  "rewrites": [
+    { "source": "/api/groq", "destination": "/api/groq" },
+    { "source": "/api/analyze", "destination": "/api/analyze" },
+    { "source": "/api/generate", "destination": "/api/generate" },
+    { "source": "/api/match", "destination": "/api/match" },
+    { "source": "/api/improve", "destination": "/api/improve" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
