@@ -1,4 +1,4 @@
-# Resume Banao Job Pao
+# Resume Builder
 
 An AI-powered resume builder that helps you create professional resumes effortlessly.
 
