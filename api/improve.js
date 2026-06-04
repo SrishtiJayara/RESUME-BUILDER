@@ -1,9 +1,4 @@
-const Groq = require("groq-sdk");
-
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-const MODEL = "llama-3.3-70b-versatile";
-
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -14,8 +9,10 @@ module.exports = async function handler(req, res) {
   if (!resumeText) return res.status(400).json({ error: "resumeText required" });
 
   try {
+    const { default: Groq } = await import("groq-sdk");
+    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
     const completion = await groq.chat.completions.create({
-      model: MODEL,
+      model: "llama-3.3-70b-versatile",
       messages: [
         { role: "system", content: "You are an elite resume coach. Return ONLY valid JSON." },
         { role: "user", content: `Improve this resume${targetRole ? ` for a ${targetRole} role` : ""}.\n\nResume:\n${resumeText}\n\nReturn JSON with: overallFeedback, quickWins[{issue,fix}], impactImprovements[{section,original,improved,reason}], structureAdvice[], contentAdvice[], powerWords[], improvedSummary` },
@@ -27,7 +24,7 @@ module.exports = async function handler(req, res) {
     const json = JSON.parse(raw.replace(/```json|```/g, "").trim());
     res.json(json);
   } catch (err) {
-    console.error(err);
+    console.error("improve error:", err);
     res.status(500).json({ error: err.message });
   }
-};
+}
