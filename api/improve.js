@@ -1,9 +1,9 @@
-import Groq from "groq-sdk";
+const Groq = require("groq-sdk");
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const MODEL = "llama-3.3-70b-versatile";
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -17,20 +17,8 @@ export default async function handler(req, res) {
     const completion = await groq.chat.completions.create({
       model: MODEL,
       messages: [
-        { role: "system", content: "You are an elite resume coach. Give actionable, specific improvement suggestions. Return ONLY valid JSON." },
-        { role: "user", content: `Give detailed improvement suggestions for this resume${targetRole ? ` targeting a ${targetRole} role` : ""}.
-
-Resume:
-${resumeText}
-
-Return JSON with:
-- overallFeedback: string
-- quickWins: Array<{issue: string, fix: string}>
-- impactImprovements: Array<{section: string, original: string, improved: string, reason: string}>
-- structureAdvice: string[]
-- contentAdvice: string[]
-- powerWords: string[]
-- improvedSummary: string` },
+        { role: "system", content: "You are an elite resume coach. Return ONLY valid JSON." },
+        { role: "user", content: `Improve this resume${targetRole ? ` for a ${targetRole} role` : ""}.\n\nResume:\n${resumeText}\n\nReturn JSON with: overallFeedback, quickWins[{issue,fix}], impactImprovements[{section,original,improved,reason}], structureAdvice[], contentAdvice[], powerWords[], improvedSummary` },
       ],
       temperature: 0.7,
       max_tokens: 2048,
@@ -42,4 +30,4 @@ Return JSON with:
     console.error(err);
     res.status(500).json({ error: err.message });
   }
-}
+};

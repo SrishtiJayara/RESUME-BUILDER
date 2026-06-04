@@ -1,23 +1,9 @@
-import Groq from "groq-sdk";
+const Groq = require("groq-sdk");
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const MODEL = "llama-3.3-70b-versatile";
 
-async function callGroq(systemPrompt, userPrompt) {
-  const completion = await groq.chat.completions.create({
-    model: MODEL,
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt },
-    ],
-    temperature: 0.7,
-    max_tokens: 2048,
-  });
-  return completion.choices[0].message.content;
-}
-
-export default async function handler(req, res) {
-  // CORS headers
+module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -39,4 +25,4 @@ export default async function handler(req, res) {
     console.error(err);
     res.status(err.status || 500).json({ error: err.message });
   }
-}
+};

@@ -1,9 +1,9 @@
-import Groq from "groq-sdk";
+const Groq = require("groq-sdk");
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const MODEL = "llama-3.3-70b-versatile";
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -19,23 +19,7 @@ export default async function handler(req, res) {
       model: MODEL,
       messages: [
         { role: "system", content: "You are an expert at matching resumes to job descriptions. Return ONLY valid JSON." },
-        { role: "user", content: `Analyze how well this resume matches the job description.
-
-Resume:
-${resumeText}
-
-Job Description:
-${jobDescription}
-
-Return JSON with:
-- matchScore: number 0-100
-- verdict: string ("Strong Match" | "Good Match" | "Partial Match" | "Weak Match")
-- matchedKeywords: string[]
-- missingKeywords: string[]
-- matchedRequirements: string[]
-- missingRequirements: string[]
-- recommendations: string[] (3-5 specific actions)
-- coverLetterHint: string (1 paragraph tailored cover letter opener)` },
+        { role: "user", content: `Match this resume to the job description.\n\nResume:\n${resumeText}\n\nJob Description:\n${jobDescription}\n\nReturn JSON with: matchScore (0-100), verdict, matchedKeywords[], missingKeywords[], matchedRequirements[], missingRequirements[], recommendations[], coverLetterHint` },
       ],
       temperature: 0.7,
       max_tokens: 2048,
@@ -47,4 +31,4 @@ Return JSON with:
     console.error(err);
     res.status(500).json({ error: err.message });
   }
-}
+};
