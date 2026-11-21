@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     const { default: Groq } = await import("groq-sdk");
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
     const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: "openai/gpt-oss-20b",
       messages: [
         { role: "system", content: "You are an elite resume coach. Return ONLY valid JSON." },
         { role: "user", content: `Improve this resume${targetRole ? ` for a ${targetRole} role` : ""}.\n\nResume:\n${resumeText}\n\nReturn JSON with: overallFeedback, quickWins[{issue,fix}], impactImprovements[{section,original,improved,reason}], structureAdvice[], contentAdvice[], powerWords[], improvedSummary` },
