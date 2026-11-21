@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import Groq from "groq-sdk";
 import dotenv from "dotenv";
+import { incrementVisitCount } from "../backend/visits.js";
 
 dotenv.config();
 
@@ -9,12 +10,20 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const MODEL = "llama-3.3-70b-versatile";
+
+function getGroq() {
+  if (!process.env.GROQ_API_KEY) {
+    const error = new Error("GROQ_API_KEY is not configured on the server");
+    error.status = 503;
+    throw error;
+  }
+  return new Groq({ apiKey: process.env.GROQ_API_KEY });
+}
 
 // Helper: call Groq
 async function callGroq(systemPrompt, userPrompt) {
-  const completion = await groq.chat.completions.create({
+  const completion = await getGroq().chat.completions.create({
     model: MODEL,
     messages: [
       { role: "system", content: systemPrompt },
@@ -27,11 +36,13 @@ async function callGroq(systemPrompt, userPrompt) {
 }
 
 app.post("/api/groq", async (req, res) => {
-  const { prompt, maxTokens = 600 } = req.body;
-  if (!prompt) return res.status(400).json({ error: "Prompt is required" });
+  const { prompt, maxTokens = 600 } = req.body || {};
+  if (typeof prompt !== "string" || !prompt.trim()) {
+    return res.status(400).json({ error: "Prompt is required" });
+  }
 
   try {
-    const completion = await groq.chat.completions.create({
+    const completion = await getGroq().chat.completions.create({
       model: MODEL,
       messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
@@ -47,6 +58,15 @@ app.post("/api/groq", async (req, res) => {
     const status = error.status || 500;
     const message = error.error?.error?.message || error.message || "Failed to generate AI response";
     res.status(status).json({ error: message });
+  }
+});
+
+app.get("/api/visits", async (req, res) => {
+  try {
+    res.json({ count: await incrementVisitCount() });
+  } catch (error) {
+    console.error("Visit counter error:", error);
+    res.status(error.status || 502).json({ error: error.message });
   }
 });
 

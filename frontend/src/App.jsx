@@ -2,6 +2,26 @@ import { useState, useCallback, useRef, useEffect } from "react";
 
 // ── Groq API helper ───────────────────────────────────────────────────────────
 
+let visitorCountRequest;
+
+function fetchVisitorCount() {
+  if (!visitorCountRequest) {
+    visitorCountRequest = fetch("/api/visits").then(async (response) => {
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || `Visitor counter API error ${response.status}`);
+      }
+
+      const count = Number(data.count);
+      if (!Number.isFinite(count)) {
+        throw new Error("Visitor counter API returned an invalid count");
+      }
+      return count;
+    });
+  }
+  return visitorCountRequest;
+}
+
 async function callAI(prompt, maxTokens = 600) {
   console.log("🌐 callAI function called with maxTokens:", maxTokens);
   
@@ -382,12 +402,18 @@ export default function ResumeAI() {
 
   // ── Visitor Tracking ──────────────────────────────────────────────────────────
   useEffect(() => {
-    fetch('https://api.counterapi.dev/v1/resume-banao-job-pao/visits/up')
-      .then(response => response.json())
-      .then(data => {
-        setVisitorCount(data.count ?? data.value ?? 0);
+    let active = true;
+    fetchVisitorCount()
+      .then(count => {
+        if (active) setVisitorCount(count);
       })
-      .catch(err => console.log('Visit tracking error:', err));
+      .catch(err => {
+        if (active) console.error('Visit tracking error:', err);
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const currentTemplate = RESUME_TEMPLATES.find(t => t.id === activeTemplate) || RESUME_TEMPLATES[0];
