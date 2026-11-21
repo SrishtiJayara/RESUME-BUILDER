@@ -1,17 +1,10 @@
 export async function incrementVisitCount() {
-  const workspace = process.env.COUNTER_WORKSPACE;
-  if (!workspace) {
-    const error = new Error("COUNTER_WORKSPACE is not configured on the server");
-    error.status = 503;
-    throw error;
-  }
-
   const headers = {};
   if (process.env.COUNTER_API_KEY) {
     headers.Authorization = `Bearer ${process.env.COUNTER_API_KEY}`;
   }
 
-  const url = `https://api.counterapi.dev/v2/${encodeURIComponent(workspace)}/visits/up`;
+  const url = "https://api.counterapi.dev/v2/srishtis-team-6311/first-counter-6311/up";
   const response = await fetch(url, { headers });
   const payload = await response.json().catch(() => ({}));
 
