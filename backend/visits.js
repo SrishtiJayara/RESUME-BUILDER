@@ -15,7 +15,12 @@ export async function incrementVisitCount() {
     throw error;
   }
 
-  const count = Number(payload?.value ?? payload?.data?.value ?? payload?.data);
+  const count = Number(
+    payload?.data?.up_count ??
+    payload?.value ??
+    payload?.data?.value ??
+    payload?.data
+  );
   if (!Number.isFinite(count)) {
     const error = new Error("Counter API returned an invalid visit count");
     error.status = 502;
