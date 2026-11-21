@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     const { default: Groq } = await import("groq-sdk");
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
     const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: "openai/gpt-oss-20b",
       messages: [
         { role: "system", content: "You are an expert at matching resumes to job descriptions. Return ONLY valid JSON." },
         { role: "user", content: `Match this resume to the job description.\n\nResume:\n${resumeText}\n\nJob Description:\n${jobDescription}\n\nReturn JSON with: matchScore (0-100), verdict, matchedKeywords[], missingKeywords[], matchedRequirements[], missingRequirements[], recommendations[], coverLetterHint` },
