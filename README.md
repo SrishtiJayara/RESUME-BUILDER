@@ -19,3 +19,5 @@ An AI-powered resume builder that helps you create professional resumes effortle
 - **Dark / Light Mode** — Toggle between themes
 - **Mobile Responsive** — Works on phones and tablets
 - **Visit Counter** — Tracks total site visits
+
+The visit counter uses CounterAPI v2. Create a workspace and a public `visits` counter, then set `COUNTER_WORKSPACE` in the server environment (for Vercel, add it to the project's Environment Variables). For a private counter, also set `COUNTER_API_KEY`. The AI features require `GROQ_API_KEY` in the server environment.
